@@ -1,0 +1,22 @@
+<routes xmlns="http://camel.apache.org/schema/spring" xsi:schemaLocation="http://camel.apache.org/schema/spring" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <route id="DBOR_Receive">
+        <setProperty propertyName="bmCodeSes">
+            <constant>00220001</constant>
+        </setProperty>
+        <setHeader headerName="beginDate">
+            <simple>${date:now:yyyyMMddHHmmss}</simple>
+        </setHeader>
+        <from uri="file:{{from}}?include=.*PDBOR.*&amp;recursive=true&amp;readLock=changed&amp;keepLastModified=true&amp;fileExist=Fail&amp;delete=true" />
+        <doTry>
+            <loadBalance>
+                <custom ref="loadBalancer"/>
+                <to uri="file:#{to1}"/>
+                <to uri="file:#{to2}"/>
+            </loadBalance>
+            <doCatch>
+                <exception>java.lang.Exception</exception>
+                <bean beanType="fr.vcy.coredaemon.camel.ExceptionService"/>
+            </doCatch>
+        </doTry>
+    </route>
+</routes>

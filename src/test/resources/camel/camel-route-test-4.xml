@@ -1,0 +1,19 @@
+<routes xmlns="http://camel.apache.org/schema/spring" xsi:schemaLocation="http://camel.apache.org/schema/spring" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   
+    <route id="CDGF_Receive_DECDG">
+        <from uri="file:#{from}?include=.*TDECDGPCDGF.*&amp;recursive=true&amp;readLock=changed&amp;keepLastModified=true&amp;fileExist=Fail&amp;delete=true" />
+        <to uri="seda:receiveDECDG"/>
+    </route>
+    
+    <route id="CDGF_seda">
+        <from uri="seda:receiveDECDG?concurrentConsumers=5" />
+        <doTry>
+            <to uri="file:#{to6}"/>
+            <doCatch>
+                <exception>java.lang.Exception</exception>
+                <bean beanType="fr.vcy.coredaemon.camel.ExceptionService"/>
+            </doCatch>
+        </doTry>
+    </route>
+    
+</routes>

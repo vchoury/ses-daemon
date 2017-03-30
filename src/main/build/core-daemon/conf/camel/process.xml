@@ -1,0 +1,25 @@
+<routes xmlns="http://camel.apache.org/schema/spring" xsi:schemaLocation="http://camel.apache.org/schema/spring" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <route id="demo-route">
+        <from uri="file:{{PATH_BASE}}/work/receive/?include=.*&amp;recursive=true&amp;readLock=changed&amp;keepLastModified=true&amp;fileExist=Fail&amp;delete=true" />
+        <to uri="seda:demo-route-send"/>
+    </route>
+    
+    <route id="demo-route-seda">
+        <from uri="seda:demo-route-send?waitForTaskToComplete=Never&amp;concurrentConsumers=3" />
+        <doTry>
+            <to uri="file:{{PATH_BASE}}/archive/?fileName=${date:now:yyyyMMdd}/receive/${file:name}"/>
+            <loadBalance>
+                <custom ref="loadBalancer"/>
+                <to uri="file:{{PATH_BASE}}/work/send_1/"/>
+                <to uri="file:{{PATH_BASE}}/work/send_2/"/>
+            </loadBalance>
+            <doCatch>
+                <exception>java.lang.Exception</exception>
+                <bean beanType="fr.vcy.coredaemon.camel.ExceptionService"/>
+                <to uri="file:{{PATH_BASE}}/archive/?fileName=${date:now:yyyyMMdd}/error/${file:name}"/>
+            </doCatch>
+        </doTry>
+    </route>
+    
+</routes>

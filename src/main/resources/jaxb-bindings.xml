@@ -1,0 +1,8 @@
+<bindings xmlns="http://java.sun.com/xml/ns/jaxb" version="2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <globalBindings>
+        <javaType name="java.util.Date" 
+            xmlType="xsd:dateTime"
+            parseMethod="fr.docapost.ses.core.utils.XSDateTimeCustomBinder.parseDateTime"
+            printMethod="fr.docapost.ses.core.utils.XSDateTimeCustomBinder.printDateTime"/>
+    </globalBindings>
+</bindings>
